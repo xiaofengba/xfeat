@@ -1,3 +1,35 @@
+# 链接CPU版本的ROS2 
+```python
+# 删除虚拟环境
+rm -rf ros_venv
+# 当前目录下创建一个虚拟的环境
+python3 -m venv ros_venv --system-site-packages
+# 激活环境
+source ros_venv/bin/activate
+source /opt/ros/humble/setup.bash
+# 查看当前python的地址，是否处于虚拟环境
+which python
+
+# 安装依赖
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+pip install opencv-contrib-python tqdm
+```
+# 修改为GPU版本
+```python
+# 先卸载torchvision
+pip uninstall torch torchvision
+# 安装GPU版本
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+```
+# Xfeat的几种工作模式
+  - 图像的稀疏匹配
+    ```python
+    mkpts_0, mkpts_1 = self.xfeat.match_xfeat(input_tensor0, input_tensor1, top_k=2048)
+    ```
+  - 先提取特征再匹配
+
+
+---
 ## XFeat: Accelerated Features for Lightweight Image Matching
 [Guilherme Potje](https://guipotje.github.io/) · [Felipe Cadar](https://eucadar.com/) · [Andre Araujo](https://andrefaraujo.github.io/) · [Renato Martins](https://renatojmsdh.github.io/) · [Erickson R. Nascimento](https://homepages.dcc.ufmg.br/~erickson/)
 
