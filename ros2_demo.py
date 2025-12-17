@@ -188,6 +188,7 @@ class XFeatStereoVO(Node):
         kps1 = out1['keypoints'].cpu().numpy()
         desc1 = out1['descriptors']
 
+        print(desc1.shape)
         # ---------------------------------------------------------
         # 3. 双目匹配 (Stereo Matching) -> 恢复当前帧深度
         # ---------------------------------------------------------
