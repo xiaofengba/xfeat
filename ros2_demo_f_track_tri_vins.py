@@ -117,6 +117,7 @@ class XFeatVinsFrontEnd(Node):
         with torch.no_grad():
             out_l = self.xfeat.detectAndCompute(ts_l, top_k=self.max_pts_count)[0]
             out_r = self.xfeat.detectAndCompute(ts_r, top_k=self.max_pts_count)[0]
+        # 如果当前帧的特征点比较少， 为已经存在的特征点构建一个mask， 计算需要新增的特征点， 保证新特征点位于图像内，且特征点所在的mask可用，然后添加该特征点
         if len(self.curr_pts_l) < self.max_pts_count:
             mask = np.ones((h, w), dtype=np.uint8)*255
             for pt in self.curr_pts_l: cv2.circle(mask, (int(pt[0]), int(pt[1])), 25, 0, -1)
@@ -129,7 +130,7 @@ class XFeatVinsFrontEnd(Node):
                 self.curr_ages = np.concatenate([self.curr_ages, np.ones(len(add_pts), dtype=int)])
                 self.next_id += len(add_pts)
         return out_l, out_r
-
+    
     def match_stereo_reinforced(self, gray_l, gray_r, out_l, out_r):
         pts_r, st = np.zeros_like(self.curr_pts_l), np.zeros(len(self.curr_pts_l), dtype=bool)
         if len(self.curr_pts_l) > 0:

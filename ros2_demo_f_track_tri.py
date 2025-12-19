@@ -117,17 +117,20 @@ class XFeatStereoTrackerNode(Node):
 
     def track_left_temporal(self, gray_l):
         h, w = gray_l.shape
+        # 如果之前有特征点，就使用LK先追踪    
         if self.prev_gray_l is not None and self.curr_pts_l is not None and len(self.curr_pts_l) > 0:
             new_pts_l, status, _ = cv2.calcOpticalFlowPyrLK(self.prev_gray_l, gray_l, self.curr_pts_l.astype(np.float32), None, **self.lk_params)
             status = status.reshape(-1).astype(bool)
             valid = status & (new_pts_l[:,0]>5) & (new_pts_l[:,0]<w-5) & (new_pts_l[:,1]>5) & (new_pts_l[:,1]<h-5)
             self.curr_pts_l, self.curr_ids, self.curr_ages = new_pts_l[valid], self.curr_ids[valid], self.curr_ages[valid]+1
+        # 初始是没有特征点，需要xfeat来补充特征点
         else:
             self.curr_pts_l, self.curr_ids, self.curr_ages = np.empty((0, 2)), np.array([], dtype=int), np.array([], dtype=int)
 
     def extract_stereo_features(self, img_l, img_r, gray_l):
         h, w = gray_l.shape
         input_l, input_r = self.preprocess_tensor(img_l), self.preprocess_tensor(img_r)
+        # 对单个图像进行关键点检测、描述子计算
         with torch.no_grad():
             out_l = self.xfeat.detectAndCompute(input_l, top_k=self.max_pts_count)[0]
             out_r = self.xfeat.detectAndCompute(input_r, top_k=self.max_pts_count)[0]
